@@ -1,5 +1,5 @@
 main: me.test.testplugin.Main
-name: testplugin
+name: minecraftTestPlugin
 version: 1.0
 author: test
 
@@ -8,3 +8,5 @@ api-version: 1.16
 commands:
   test:
   show:
+  logger:
+  del:
