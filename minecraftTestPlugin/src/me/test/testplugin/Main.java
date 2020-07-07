@@ -120,6 +120,19 @@ public class Main extends JavaPlugin implements Listener {
 		}			
 	}
 	
+//	@EventHandler
+//	public void onPlaceCart( event) {
+//		
+//		if(event.getVehicle().getName().equalsIgnoreCase("Minecart With Chest")) {
+//			Chunk c = event.getVehicle().getLocation().getChunk();
+//			Bukkit.broadcastMessage(c.toString());
+//			
+//			Bukkit.getWorld("world").setChunkForceLoaded(c.getX(), c.getZ(), true);
+//			
+//			// Load chunks around cart
+//		}			
+//	}
+	
 	@EventHandler
 	public void onMoveCart(VehicleMoveEvent event) {
 		if(event.getVehicle() instanceof StorageMinecart) {
@@ -127,13 +140,19 @@ public class Main extends JavaPlugin implements Listener {
 //			Bukkit.broadcastMessage(c.toString());
 			
 			Bukkit.getWorld("world").setChunkForceLoaded(c.getX(), c.getZ(), true);
-			if (Bukkit.getWorld("world").getForceLoadedChunks().contains(Bukkit.getWorld("world").getChunkAt(c.getX()-1, c.getZ()))) {
-				Bukkit.getWorld("world").setChunkForceLoaded(c.getX() -1, c.getZ(), false);
+			for (int x=c.getX()-1; x == c.getX()+1; x++) {
+				for (int z=c.getZ()-1; z == c.getZ()+1; z++) {
+					if (x != c.getX() && z != c.getZ())
+						Bukkit.getWorld("world").setChunkForceLoaded(x, z, false);
+				}
 			}
-			if (Bukkit.getWorld("world").getForceLoadedChunks().contains(Bukkit.getWorld("world").getChunkAt(c.getX(), c.getZ()-1))) {
-				Bukkit.getWorld("world").setChunkForceLoaded(c.getX(), c.getZ()-1, false);
-			}
-	
+//			if (Bukkit.getWorld("world").getForceLoadedChunks().contains(Bukkit.getWorld("world").getChunkAt(c.getX()-1, c.getZ()))) {
+//				Bukkit.getWorld("world").setChunkForceLoaded(c.getX() -1, c.getZ(), false);
+//			}
+//			if (Bukkit.getWorld("world").getForceLoadedChunks().contains(Bukkit.getWorld("world").getChunkAt(c.getX(), c.getZ()-1))) {
+//				Bukkit.getWorld("world").setChunkForceLoaded(c.getX(), c.getZ()-1, false);
+//			}
+//	
 			
 			
 			// Load chunks around cart
