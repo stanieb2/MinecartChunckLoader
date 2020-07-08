@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.minecart.StorageMinecart;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.vehicle.VehicleCreateEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -35,26 +34,6 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-//		Player p = (Player) sender;
-//		p.sendMessage(label);
-		if (label.equalsIgnoreCase("test")) {
-			if(sender instanceof Player) {
-				Player p = (Player) sender;
-				p.sendMessage("it works!!! kinda? of niet?");
-				
-				World w = p.getWorld();
-				
-				
-				for (StorageMinecart cart : w.getEntitiesByClass(StorageMinecart.class)) {
-					Location cartloc = cart.getLocation();
-					Chunk c = w.getChunkAt(cartloc);
-					p.sendMessage(cartloc.toString() + " -- loaded: " + c.isLoaded());
-				}
-				
-				return true;
-			}
-		}
-		
 		if (label.equalsIgnoreCase("logger")) {
 			if(sender instanceof Player) {
 				Player p = (Player) sender;
@@ -96,8 +75,6 @@ public class Main extends JavaPlugin implements Listener {
 					p.sendMessage(c.toString());
 					Bukkit.getWorld("world").setChunkForceLoaded(c.getX(), c.getZ(), false);
 				}
-				
-				
 				return true;
 			}
 		}
@@ -107,21 +84,8 @@ public class Main extends JavaPlugin implements Listener {
 		
 	}
 	
-	@EventHandler
-	public void onPlaceCart(VehicleCreateEvent event) {
-		
-		if(event.getVehicle().getName().equalsIgnoreCase("Minecart With Chest")) {
-			Chunk c = event.getVehicle().getLocation().getChunk();
-			Bukkit.broadcastMessage(c.toString());
-			
-			Bukkit.getWorld("world").setChunkForceLoaded(c.getX(), c.getZ(), true);
-			
-			// Load chunks around cart
-		}			
-	}
-	
 //	@EventHandler
-//	public void onPlaceCart( event) {
+//	public void onPlaceCart(VehicleCreateEvent event) {
 //		
 //		if(event.getVehicle().getName().equalsIgnoreCase("Minecart With Chest")) {
 //			Chunk c = event.getVehicle().getLocation().getChunk();
@@ -136,26 +100,10 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onMoveCart(VehicleMoveEvent event) {
 		if(event.getVehicle() instanceof StorageMinecart) {
-			Chunk c = event.getVehicle().getLocation().getChunk();
-//			Bukkit.broadcastMessage(c.toString());
-			
-			Bukkit.getWorld("world").setChunkForceLoaded(c.getX(), c.getZ(), true);
-			for (int x=c.getX()-1; x == c.getX()+1; x++) {
-				for (int z=c.getZ()-1; z == c.getZ()+1; z++) {
-					if (x != c.getX() && z != c.getZ())
-						Bukkit.getWorld("world").setChunkForceLoaded(x, z, false);
-				}
-			}
-//			if (Bukkit.getWorld("world").getForceLoadedChunks().contains(Bukkit.getWorld("world").getChunkAt(c.getX()-1, c.getZ()))) {
-//				Bukkit.getWorld("world").setChunkForceLoaded(c.getX() -1, c.getZ(), false);
-//			}
-//			if (Bukkit.getWorld("world").getForceLoadedChunks().contains(Bukkit.getWorld("world").getChunkAt(c.getX(), c.getZ()-1))) {
-//				Bukkit.getWorld("world").setChunkForceLoaded(c.getX(), c.getZ()-1, false);
-//			}
-//	
-			
-			
-			// Load chunks around cart
+			Chunk cFrom = Bukkit.getWorld("world").getChunkAt(event.getFrom());
+			Chunk cTo   = Bukkit.getWorld("world").getChunkAt(event.getTo());
+			Bukkit.getWorld("world").setChunkForceLoaded(cFrom.getX(), cFrom.getZ(), false);
+			Bukkit.getWorld("world").setChunkForceLoaded(cTo.getX(), cTo.getZ(), true);
 		}			
 	}
 	
@@ -163,37 +111,7 @@ public class Main extends JavaPlugin implements Listener {
 	public void onBreakCart(VehicleDestroyEvent event) {
 		if(event.getVehicle() instanceof StorageMinecart) {
 			Chunk c = event.getVehicle().getLocation().getChunk();
-			Bukkit.broadcastMessage(c.toString());
-			
 			Bukkit.getWorld("world").setChunkForceLoaded(c.getX(), c.getZ(), false);
-			
-			// Load chunks around cart
 		}	
 	}
-	
-//	@EventHandler
-//	public void onUpdateCart(VehicleUpdateEvent event) {
-//		if(event.getVehicle() instanceof StorageMinecart) {
-//			Chunk c = event.getVehicle().getLocation().getChunk();
-//			Bukkit.broadcastMessage(c.toString());
-//			
-////			Bukkit.getWorld("world").setChunkForceLoaded(c.getX(), c.getZ(), false);
-//			
-//			// Load chunks around cart
-//		}	
-//	}
-	
-	
-//	@EventHandler
-//	public void onStopCart(VehicleBlockCollisionEvent event) {
-//		if(event.getVehicle() instanceof StorageMinecart) {
-//			Chunk c = event.getVehicle().getLocation().getChunk();
-//			Bukkit.broadcastMessage(c.toString());
-//			
-//			Bukkit.getWorld("world").setChunkForceLoaded(c.getX(), c.getZ(), false);
-//			
-//			// Load chunks around cart
-//		}
-//
-//	}
 }
