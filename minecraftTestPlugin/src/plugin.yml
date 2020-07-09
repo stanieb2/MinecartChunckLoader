@@ -6,7 +6,6 @@ author: test
 api-version: 1.16
 
 commands:
-  test:
   show:
-  logger:
   del:
+  delAll:

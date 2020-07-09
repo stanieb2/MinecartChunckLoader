@@ -1,10 +1,9 @@
 package me.test.testplugin;
 
-import java.util.logging.Logger;
+import java.text.MessageFormat;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -18,49 +17,34 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin implements Listener {
 	
-	private Logger logger;
+//	private Logger logger;
 	@Override 
 	public void onEnable() {
 		this.getServer().getPluginManager().registerEvents(this, this);
-		this.logger = (Logger) this.getLogger();
+//		this.logger = (Logger) this.getLogger();
 
-		// load all chunks from file
 	}
 	
 	@Override
 	public void onDisable() {
-		// save loaded chunks to file
+
 		// unload all chunks
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		if (label.equalsIgnoreCase("logger")) {
-			if(sender instanceof Player) {
-				Player p = (Player) sender;
-				this.logger.info("logger it works!!! kinda?");
-				
-				World w = p.getWorld();
-				
-				
-				for (StorageMinecart cart : w.getEntitiesByClass(StorageMinecart.class)) {
-					Location cartloc = cart.getLocation();
-					Chunk c = w.getChunkAt(cartloc);
-					this.logger.info(cartloc.toString() + " -- loaded logger: " + c.isLoaded());
-				}
-				
-				return true;
-			}
-		}
-		
 		if(label.equalsIgnoreCase("show")) {
 			if(sender instanceof Player) {
 				Player p = (Player) sender;
-				
 				World w = p.getWorld();
-				for (Chunk c : w.getForceLoadedChunks()) {
-					p.sendMessage(c.toString());
-				}
+				String msg = "";
 				
+				for (Chunk c : w.getForceLoadedChunks()) 
+					msg += "\nx: " +  String.valueOf(c.getX()) + ", z: "+  String.valueOf(c.getZ());
+				
+				if (msg != "")
+					p.sendMessage("Chunk(s) force loaded at:" + msg);
+				else 
+					p.sendMessage("No chunks are force loaded");
 				
 				return true;
 			}
@@ -69,19 +53,28 @@ public class Main extends JavaPlugin implements Listener {
 		if(label.equalsIgnoreCase("del")) {
 			if(sender instanceof Player) {
 				Player p = (Player) sender;
-				
-				World w = p.getWorld();
-				for (Chunk c : w.getForceLoadedChunks()) {
-					p.sendMessage(c.toString());
-					Bukkit.getWorld("world").setChunkForceLoaded(c.getX(), c.getZ(), false);
+				if (args.length != 2) {
+					p.sendMessage("Please give the x and z coordinate of the chunk.");
+					return true;
 				}
+				Bukkit.getWorld("world").setChunkForceLoaded(Integer.parseInt(args[0]), Integer.parseInt(args[1]), false);
+				p.sendMessage((String) MessageFormat.format("Unloaded chunk at coordinates: x:{0}, z:{1}", args[0], args[1]));
 				return true;
 			}
 		}
-			
+		
+		if(label.equalsIgnoreCase("delAll")) {
+			if(sender instanceof Player) {
+				Player p = (Player) sender;
+				
+				World w = p.getWorld();
+				for (Chunk c : w.getForceLoadedChunks())
+					Bukkit.getWorld("world").setChunkForceLoaded(c.getX(), c.getZ(), false);
+				p.sendMessage("No more chunks are force loaded");
+				return true;
+			}
+		}
 		return false;
-		
-		
 	}
 	
 //	@EventHandler
