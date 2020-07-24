@@ -8,10 +8,13 @@ import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Vehicle;
 import org.bukkit.entity.minecart.StorageMinecart;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -19,18 +22,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin implements Listener {
 	
-//	private Logger logger;
 	@Override 
 	public void onEnable() {
 		this.getServer().getPluginManager().registerEvents(this, this);
-//		this.logger = (Logger) this.getLogger();
-
-	}
-	
-	@Override
-	public void onDisable() {
-
-		// unload all chunks
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -40,7 +34,6 @@ public class Main extends JavaPlugin implements Listener {
 				p.sendMessage("You do not have permission to use this command!");
 				return true;
 			}
-				
 		}
 		
 		if(label.equalsIgnoreCase("show")) {
@@ -85,35 +78,40 @@ public class Main extends JavaPlugin implements Listener {
 		}
 		return false;
 	}
-	
-//	@EventHandler
-//	public void onPlaceCart(VehicleCreateEvent event) {
-//		
-//		if(event.getVehicle().getName().equalsIgnoreCase("Minecart With Chest")) {
-//			Chunk c = event.getVehicle().getLocation().getChunk();
-//			Bukkit.broadcastMessage(c.toString());
-//			
-//			Bukkit.getWorld("world").setChunkForceLoaded(c.getX(), c.getZ(), true);
-//			
-//			// Load chunks around cart
-//		}			
-//	}
+
 	
 	@EventHandler
 	public void onMoveCart(VehicleMoveEvent event) {
 		if(event.getVehicle() instanceof StorageMinecart) {
-			Chunk cFrom = Bukkit.getWorld("world").getChunkAt(event.getFrom());
-			Chunk cTo   = Bukkit.getWorld("world").getChunkAt(event.getTo());
-			Bukkit.getWorld("world").setChunkForceLoaded(cFrom.getX(), cFrom.getZ(), false);
-			Bukkit.getWorld("world").setChunkForceLoaded(cTo.getX(), cTo.getZ(), true);
+			World w = event.getVehicle().getWorld();
+			
+			Chunk cFrom = w.getChunkAt(event.getFrom());
+			Chunk cTo   = w.getChunkAt(event.getTo());
+			
+			if(cFrom != cTo) {
+				w.setChunkForceLoaded(cFrom.getX(), cFrom.getZ(), false);
+				w.setChunkForceLoaded(cTo.getX(), cTo.getZ(), true);
+			}
 		}			
 	}
 	
 	@EventHandler
 	public void onBreakCart(VehicleDestroyEvent event) {
-		if(event.getVehicle() instanceof StorageMinecart) {
-			Chunk c = event.getVehicle().getLocation().getChunk();
-			Bukkit.getWorld("world").setChunkForceLoaded(c.getX(), c.getZ(), false);
+		Vehicle v = event.getVehicle();
+		
+		if(v instanceof StorageMinecart) {
+			Chunk c = v.getLocation().getChunk();
+			v.getWorld().setChunkForceLoaded(c.getX(), c.getZ(), false);
 		}	
+	}
+	
+	@EventHandler
+	public void onExplodeEntity(EntityExplodeEvent event) {
+		
+		// Replace creeper explosion with non block damaging explosion
+		if(event.getEntity() instanceof Creeper) {
+			event.setCancelled(true);
+			event.getEntity().getWorld().createExplosion(event.getLocation(), 3, false, false);
+		}
 	}
 }
